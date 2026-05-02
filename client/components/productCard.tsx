@@ -4,10 +4,13 @@ import { ProductCardProps } from '@/constants/types'
 import { Link } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@/constants';
+import { useWishlist } from '@/context/WishlistContext';
 
 export default function ProductCard({ product }: ProductCardProps) {
 
-    const isLiked = false; //managed with state or props to reflect the liked status of the product.
+    const { toggleWishlist, isInWishlist } = useWishlist();
+
+    const isLiked = isInWishlist(product._id); //managed with state or props to reflect the liked status of the product.
 
   return (
     <Link href={`/product/${product._id}`} asChild>
@@ -21,6 +24,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                 e.stopPropagation(); // Prevents the touch event from propagating to the parent TouchableOpacity which navigates to the product details.
 
                 // Handle like/unlike action here, possibly updating state or making an API call.
+                toggleWishlist(product);
              }}>
                 <Ionicons name={isLiked ? 'heart' : 'heart-outline'} size={20} color={isLiked ? COLORS.accent : COLORS.primary} />
             </TouchableOpacity>
