@@ -79,6 +79,28 @@ export const dummyProducts = [
     },
     {
         ratings: {
+            average: 0,
+            count: 0,
+        },
+        _id: "6683d3d47f779795ecfa98a3",
+        name: "Men Round Neck Pure Cotton T-shirt",
+        description: "A lightweight, usually knitted, pullover shirt, close-fitting and with a round neckline and short sleeves, worn as an undershirt or outer garment.",
+        price: 80,
+        images: [
+            "https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img2_1.png",
+            "https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img2_2.png",
+            "https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img2_3.png",
+            "https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img2_4.png",
+        ],
+        sizes: ["S", "M", "L", "XL", "XXL"],
+        category: "Men",
+        stock: 100,
+        isFeatured: false,
+        isActive: true,
+        createdAt: "2026-02-08T04:21:50.829Z",
+    },
+    {
+        ratings: {
             average: 4.9,
             count: 200,
         },
@@ -128,28 +150,6 @@ export const dummyProducts = [
         isFeatured: false,
         isActive: true,
         createdAt: "2026-02-05T07:12:15.825Z",
-    },
-    {
-        ratings: {
-            average: 0,
-            count: 0,
-        },
-        _id: "6683d3d47f779795ecfa98a3",
-        name: "Men Round Neck Pure Cotton T-shirt",
-        description: "A lightweight, usually knitted, pullover shirt, close-fitting and with a round neckline and short sleeves, worn as an undershirt or outer garment.",
-        price: 80,
-        images: [
-            "https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img2_1.png",
-            "https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img2_2.png",
-            "https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img2_3.png",
-            "https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img2_4.png",
-        ],
-        sizes: ["S", "M", "L", "XL", "XXL"],
-        category: "Men",
-        stock: 100,
-        isFeatured: false,
-        isActive: true,
-        createdAt: "2026-02-08T04:21:50.829Z",
     },
     {
         ratings: {
