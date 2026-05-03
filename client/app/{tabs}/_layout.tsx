@@ -3,8 +3,13 @@ import React from 'react'
 import { Tabs } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 import { COLORS } from '@/constants'
+import { useCart } from '@/context/CartContext'
 
 export default function TabLayout() {
+
+  const { cartItems } = useCart()
+
+
   return (
     <Tabs
       screenOptions={{
@@ -24,8 +29,16 @@ export default function TabLayout() {
         size={26} color={ color } /> 
         }}/>
 
-        <Tabs.Screen name="cart" options={{ tabBarIcon: ({ color, focused}) => <Ionicons name={ focused ? "cart" : "cart-outline" }
-        size={26} color={ color } /> 
+        <Tabs.Screen name="cart" options={{ tabBarIcon: ({ color, focused}) => (
+          <View className='relative'>
+            <Ionicons name={ focused ? "cart" : "cart-outline" } size={26} color={ color } />
+
+            {cartItems?.length > 0 &&
+            <View className='absolute -top-2 -right-2 bg-accent size-3 rounded-full items-center justify-center'>
+              <Ionicons name='ellipse' size={6} color='white' />
+            </View> }
+          </View>
+        )
         }}/>
 
         <Tabs.Screen name="favourites" options={{ tabBarIcon: ({ color, focused}) => <Ionicons name= { focused ? "heart" : "heart-outline" }
