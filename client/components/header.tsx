@@ -52,7 +52,7 @@ export default function Header({ title, showBack, showSearch, showCart, showMenu
             )}
 
             {showCart && (
-                <TouchableOpacity onPress={()=> router.push( '/{tabs}/cart')} >
+                <TouchableOpacity onPress={()=> router.push("/{tabs}/cart")} >
                     <View className='relative'>
                         <Ionicons name='bag-outline' size={24} color={COLORS.primary} />
                             <View className='absolute -top-1 -right-1 bg-accent w-4 h-4 rounded-full items-center justify-center'>
