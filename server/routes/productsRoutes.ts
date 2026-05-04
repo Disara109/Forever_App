@@ -9,8 +9,7 @@ import {authorize, protect } from "../middleware/auth.js"
  //get all products
  ProductRouter.get('/', getProducts)
 
- //get single product
- ProductRouter.get('/', getProduct)
+
 
  //get single Product
  ProductRouter.get('/:id', getProduct)
