@@ -18,12 +18,11 @@ export default function SignUpScreen() {
     const [code, setCode] = useState("");
     const [pendingVerification, setPendingVerification] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [showPassword, setShowPassword] = useState(false);
 
     const onSignUpPress = async () => {
         if (!isLoaded) return;
 
-        if (!emailAddress || !password || !firstName || !lastName) {
+        if (!emailAddress || !password) {
             Toast.show({
                 type: 'error',
                 text1: 'Missing Fields',
@@ -50,7 +49,7 @@ export default function SignUpScreen() {
             Toast.show({
                 type: 'error',
                 text1: 'Failed to Sign Up',
-                text2: err?.errors?.[0]?.longMessage || err?.errors?.[0]?.message || "Something went wrong"
+                text2: err?.errors?.[0]?.message ?? "Something went wrong"
             });
         } finally {
             setLoading(false);
@@ -79,15 +78,14 @@ export default function SignUpScreen() {
             } else {
                 Toast.show({
                     type: 'error',
-                    text1: 'Verification incomplete',
-                    text2: 'Please try again.'
+                    text1: 'Verification incomplete'
                 });
             }
         } catch (err: any) {
             Toast.show({
                 type: 'error',
                 text1: 'Failed to Verify',
-                text2: err?.errors?.[0]?.longMessage || err?.errors?.[0]?.message || "Invalid code"
+                text2: err?.errors?.[0]?.message ?? "Invalid code"
             });
         } finally {
             setLoading(false);
@@ -129,19 +127,7 @@ export default function SignUpScreen() {
                     {/* Password */}
                     <View className="mb-6">
                         <Text className="text-primary font-medium mb-2">Password</Text>
-                        <View className="flex-row items-center w-full bg-surface rounded-xl pr-4">
-                            <TextInput 
-                                className="flex-1 p-4 text-primary" 
-                                placeholder="********" 
-                                placeholderTextColor="#999" 
-                                secureTextEntry={!showPassword} 
-                                value={password} 
-                                onChangeText={setPassword} 
-                            />
-                            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                                <Ionicons name={showPassword ? "eye-off" : "eye"} size={20} color="#999" />
-                            </TouchableOpacity>
-                        </View>
+                        <TextInput className="w-full bg-surface p-4 rounded-xl text-primary" placeholder="********" placeholderTextColor="#999" secureTextEntry value={password} onChangeText={setPassword} />
                     </View>
 
                     {/* Submit */}
