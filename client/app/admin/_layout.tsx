@@ -12,7 +12,7 @@ export default function AdminLayout() {
 
     useEffect(() => {
         if (isLoaded && (!user || user.publicMetadata?.role !== "admin")) {
-            router.replace("/(tabs)");
+            router.replace("/{tabs}");
         }
     }, [isLoaded, user]);
 
@@ -41,7 +41,7 @@ export default function AdminLayout() {
                 tabBarInactiveTintColor: "gray",
                 headerRight: () => (
                     <TouchableOpacity
-                        onPress={() => router.replace("/(tabs)")}
+                        onPress={() => router.replace("/{tabs}")}
                         className="mr-4 flex-row items-center"
                     >
                         <Ionicons name="log-out-outline" size={24} color={COLORS.primary} />
