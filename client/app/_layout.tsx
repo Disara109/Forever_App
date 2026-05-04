@@ -5,13 +5,12 @@ import { WishlistProvider } from "@/context/WishlistContext";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Toast from "react-native-toast-message";
 import { ClerkProvider } from '@clerk/expo'
-import { tokenCache } from '@/cache'
 
 const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY ?? ''
 
 export default function RootLayout() {
   return (
-    <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
+    <ClerkProvider publishableKey={publishableKey}>
     <GestureHandlerRootView style={{ flex: 1 }}>
         <CartProvider>
           <WishlistProvider>
