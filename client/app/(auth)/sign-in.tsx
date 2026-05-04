@@ -6,6 +6,7 @@ import { Link, useRouter } from "expo-router";
 import * as React from "react";
 import { Pressable, TextInput, View, Text, ActivityIndicator, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Toast from 'react-native-toast-message';
 
 export default function Page() {
     const { signIn, setActive, isLoaded } = useSignIn();
@@ -16,11 +17,19 @@ export default function Page() {
     const [code, setCode] = React.useState("");
     const [showEmailCode, setShowEmailCode] = React.useState(false);
     const [loading, setLoading] = React.useState(false);
+    const [showPassword, setShowPassword] = React.useState(false);
 
     const onSignInPress = async () => {
 
         if (!isLoaded) return;
-        if (!emailAddress || !password) return;
+        if (!emailAddress || !password) {
+            Toast.show({
+                type: 'error',
+                text1: 'Missing Fields',
+                text2: 'Please enter both email and password'
+            });
+            return;
+        }
 
         setLoading(true);
 
@@ -46,16 +55,34 @@ export default function Page() {
                     });
                     setShowEmailCode(true);
                 }
+            } else {
+                Toast.show({
+                    type: 'info',
+                    text1: 'Additional steps needed',
+                    text2: 'Check your email or complete verification.'
+                });
             }
-        } catch (err) {
-            console.error(err);
+        } catch (err: any) {
+            Toast.show({
+                type: 'error',
+                text1: 'Sign In Failed',
+                text2: err?.errors?.[0]?.longMessage || err?.errors?.[0]?.message || "Invalid credentials. Please try again."
+            });
         } finally {
             setLoading(false);
         }
     };
 
     const onVerifyPress = async () => {
-        if (!isLoaded || !code) return;
+        if (!isLoaded) return;
+        if (!code) {
+            Toast.show({
+                type: 'error',
+                text1: 'Missing Code',
+                text2: 'Please enter the verification code'
+            });
+            return;
+        }
 
         setLoading(true);
         try {
@@ -69,9 +96,19 @@ export default function Page() {
                     session: attempt.createdSessionId,
                 });
                 router.replace("/");
+            } else {
+                Toast.show({
+                    type: 'error',
+                    text1: 'Verification Incomplete',
+                    text2: 'Please try again.'
+                });
             }
-        } catch (err) {
-            console.error(err);
+        } catch (err: any) {
+            Toast.show({
+                type: 'error',
+                text1: 'Verification Failed',
+                text2: err?.errors?.[0]?.longMessage || err?.errors?.[0]?.message || "Invalid verification code."
+            });
         } finally {
             setLoading(false);
         }
@@ -100,7 +137,19 @@ export default function Page() {
                     {/* Password */}
                     <View className="mb-6">
                         <Text className="text-primary font-medium mb-2">Password</Text>
-                        <TextInput className="w-full bg-surface p-4 rounded-xl text-primary" placeholder="********" placeholderTextColor="#999" secureTextEntry value={password} onChangeText={setPassword} />
+                        <View className="flex-row items-center w-full bg-surface rounded-xl pr-4">
+                            <TextInput 
+                                className="flex-1 p-4 text-primary" 
+                                placeholder="********" 
+                                placeholderTextColor="#999" 
+                                secureTextEntry={!showPassword} 
+                                value={password} 
+                                onChangeText={setPassword} 
+                            />
+                            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                                <Ionicons name={showPassword ? "eye-off" : "eye"} size={20} color="#999" />
+                            </TouchableOpacity>
+                        </View>
                     </View>
 
                     {/* Submit */}

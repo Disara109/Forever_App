@@ -11,11 +11,13 @@ export default function Header({ title, showBack, showSearch, showCart, showMenu
 
     const itemCount = 3; // Example cart item count
 
+
   return (
     <View className='flex-row items-center justify-between px-4 py-3 bg-white'>
 
         {/* Left Section */}
         <View className='flex-row items-center flex-1'>
+
             {showBack && ( 
                 <TouchableOpacity onPress={() => router.back()} className='mr-3'>
                     <Ionicons name='arrow-back' size={24} color={ COLORS.primary} />
@@ -52,7 +54,7 @@ export default function Header({ title, showBack, showSearch, showCart, showMenu
             )}
 
             {showCart && (
-                <TouchableOpacity onPress={()=> router.push("/{tabs}/cart")} >
+                <TouchableOpacity onPress={()=> router.push("/(tabs)/cart")} >
                     <View className='relative'>
                         <Ionicons name='bag-outline' size={24} color={COLORS.primary} />
                             <View className='absolute -top-1 -right-1 bg-accent w-4 h-4 rounded-full items-center justify-center'>
