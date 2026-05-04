@@ -3,7 +3,7 @@ import { verifyWebhook } from "@clerk/express/webhooks"
 import User from "../models/User.js"
 
 
-export const clerkWebhoo = async (req: Request, res: Response) => {
+export const clerkWebhook = async (req: Request, res: Response) => {
   try {
     const evt = await verifyWebhook(req)
 
