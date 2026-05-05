@@ -1,7 +1,26 @@
-import {ImageCapture, ICartItem } from '../types/index.js';
+import {ICartItem, ICart } from '../types/index.js';
 import mongoose ,{ Schema } from 'mongoose';
 
 const cartItemSchema = new Schema<ICartItem> ({
     product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
-    //create the fckass schema from here
+    quantity: { type: Number, required: true, min: 1, default: 1 },
+    price: { type: Number, required: true },
+    size: { type: String },
+    
 })
+
+const cartSchema = new Schema<ICart> ( {
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'user', required: true, unique: true },
+    items: [cartItemSchema],
+    totalAmount: { type: Number, default: 0 },
+}, 
+    {timestamps: true })
+
+cartSchema.methods.calculateTotal = function (this: ICart) {
+    this.totalAmount = this.items.reduce((total: number, item: ICartItem)=>
+    { return total + item.price * item.quantity}, 0)
+    return this.totalAmount;
+}
+const Cart = mongoose.model<ICart>('Cart', cartSchema);
+
+export default Cart;
