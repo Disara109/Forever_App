@@ -47,7 +47,6 @@
     "tailwindcss": "^3.4.19"
   },
   "devDependencies": {
-    "@clerk/clerk-expo": "^2.19.31",
     "@clerk/types": "^4.101.23",
     "@react-native-community/cli": "latest",
     "@types/react": "~19.1.0",
