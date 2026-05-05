@@ -1,15 +1,25 @@
 import { COLORS } from "@/constants";
-import { useSignIn } from "@clerk/clerk-expo";
-import type { EmailCodeFactor } from "@clerk/types";
+import { useAuth, useSignIn } from "@clerk/expo";
 import { Ionicons } from "@expo/vector-icons";
 import { Link, useRouter } from "expo-router";
 import * as React from "react";
 import { Pressable, TextInput, View, Text, ActivityIndicator, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Toast from "react-native-toast-message";
+import { valueFromTextInputRef } from "@/utils/webTextInput";
+
+function formatClerkError(e: { longMessage?: string; message?: string } | null | undefined, fallback: string) {
+    if (!e) return fallback;
+    return (e.longMessage || e.message || fallback).trim();
+}
 
 export default function Page() {
-    const { signIn, setActive, isLoaded } = useSignIn();
+    const { isLoaded: authReady } = useAuth();
+    const { signIn } = useSignIn();
     const router = useRouter();
+
+    const emailRef = React.useRef<TextInput>(null);
+    const passwordRef = React.useRef<TextInput>(null);
 
     const [emailAddress, setEmailAddress] = React.useState("");
     const [password, setPassword] = React.useState("");
@@ -18,64 +28,140 @@ export default function Page() {
     const [loading, setLoading] = React.useState(false);
 
     const onSignInPress = async () => {
+        if (!authReady || !signIn) {
+            Toast.show({
+                type: "info",
+                text1: "Please wait",
+                text2: "Authentication is still loading…",
+            });
+            return;
+        }
 
-        if (!isLoaded) return;
-        if (!emailAddress || !password) return;
+        const email = valueFromTextInputRef(emailRef, emailAddress).trim();
+        const pass = valueFromTextInputRef(passwordRef, password);
+
+        if (!email || !pass) {
+            Toast.show({
+                type: "error",
+                text1: "Missing fields",
+                text2: "Please enter your email and password",
+            });
+            return;
+        }
 
         setLoading(true);
 
         try {
-
-            const signInAttempt = await signIn.create({
-                identifier: emailAddress,
-                password,
+            const { error: createErr } = await signIn.create({
+                identifier: email,
+                password: pass,
             });
 
-            if (signInAttempt.status === "complete") {
-                await setActive({
-                    session: signInAttempt.createdSessionId,
+            if (createErr) {
+                Toast.show({
+                    type: "error",
+                    text1: "Sign in failed",
+                    text2: formatClerkError(createErr, "Check your details and try again"),
                 });
-                router.replace("/");
-            } else if (signInAttempt.status === "needs_second_factor") {
-                const emailCodeFactor = signInAttempt.supportedSecondFactors?.find((factor): factor is EmailCodeFactor => factor.strategy === "email_code");
+                return;
+            }
 
-                if (emailCodeFactor) {
-                    await signIn.prepareSecondFactor({
-                        strategy: "email_code",
-                        emailAddressId: emailCodeFactor.emailAddressId,
+            if (signIn.status === "complete") {
+                const { error: finErr } = await signIn.finalize();
+                if (finErr) {
+                    Toast.show({
+                        type: "error",
+                        text1: "Sign in failed",
+                        text2: formatClerkError(finErr, "Could not complete session"),
                     });
-                    setShowEmailCode(true);
+                    return;
                 }
+                router.replace("/");
+                return;
+            }
+
+            if (signIn.status === "needs_second_factor") {
+                const { error: mfaErr } = await signIn.mfa.sendEmailCode();
+                if (mfaErr) {
+                    Toast.show({
+                        type: "error",
+                        text1: "Could not send code",
+                        text2: formatClerkError(mfaErr, "Try again or use another sign-in method"),
+                    });
+                    return;
+                }
+                setShowEmailCode(true);
             }
         } catch (err) {
             console.error(err);
+            Toast.show({
+                type: "error",
+                text1: "Sign in failed",
+                text2: "Check your details and try again",
+            });
         } finally {
             setLoading(false);
         }
     };
 
     const onVerifyPress = async () => {
-        if (!isLoaded || !code) return;
+        if (!code) {
+            Toast.show({
+                type: "error",
+                text1: "Missing code",
+                text2: "Enter the verification code from your email",
+            });
+            return;
+        }
+
+        if (!signIn) {
+            return;
+        }
 
         setLoading(true);
         try {
-            const attempt = await signIn.attemptSecondFactor({
-                strategy: "email_code",
-                code,
-            });
-
-            if (attempt.status === "complete") {
-                await setActive({
-                    session: attempt.createdSessionId,
+            const { error: verifyErr } = await signIn.mfa.verifyEmailCode({ code });
+            if (verifyErr) {
+                Toast.show({
+                    type: "error",
+                    text1: "Verification failed",
+                    text2: formatClerkError(verifyErr, "Check the code and try again"),
                 });
+                return;
+            }
+
+            if (signIn.status === "complete") {
+                const { error: finErr } = await signIn.finalize();
+                if (finErr) {
+                    Toast.show({
+                        type: "error",
+                        text1: "Sign in failed",
+                        text2: formatClerkError(finErr, "Could not complete session"),
+                    });
+                    return;
+                }
                 router.replace("/");
             }
         } catch (err) {
             console.error(err);
+            Toast.show({
+                type: "error",
+                text1: "Verification failed",
+                text2: "Check the code and try again",
+            });
         } finally {
             setLoading(false);
         }
     };
+
+    if (!authReady) {
+        return (
+            <SafeAreaView className="flex-1 bg-white justify-center items-center" style={{ padding: 28 }}>
+                <ActivityIndicator size="large" color={COLORS.primary} />
+                <Text className="text-secondary mt-4">Loading…</Text>
+            </SafeAreaView>
+        );
+    }
 
     return (
         <SafeAreaView className="flex-1 bg-white justify-center" style={{ padding: 28 }}>
@@ -94,17 +180,17 @@ export default function Page() {
                     {/* Email */}
                     <View className="mb-4">
                         <Text className="text-primary font-medium mb-2">Email</Text>
-                        <TextInput className="w-full bg-surface p-4 rounded-xl text-primary" placeholder="user@example.com" placeholderTextColor="#999" autoCapitalize="none" keyboardType="email-address" value={emailAddress} onChangeText={setEmailAddress} />
+                        <TextInput ref={emailRef} className="w-full bg-surface p-4 rounded-xl text-primary" placeholder="user@example.com" placeholderTextColor="#999" autoCapitalize="none" keyboardType="email-address" value={emailAddress} onChangeText={setEmailAddress} autoComplete="email" textContentType="emailAddress" />
                     </View>
 
                     {/* Password */}
                     <View className="mb-6">
                         <Text className="text-primary font-medium mb-2">Password</Text>
-                        <TextInput className="w-full bg-surface p-4 rounded-xl text-primary" placeholder="********" placeholderTextColor="#999" secureTextEntry value={password} onChangeText={setPassword} />
+                        <TextInput ref={passwordRef} className="w-full bg-surface p-4 rounded-xl text-primary" placeholder="********" placeholderTextColor="#999" secureTextEntry value={password} onChangeText={setPassword} autoComplete="current-password" textContentType="password" />
                     </View>
 
                     {/* Submit */}
-                    <Pressable className={`w-full py-4 rounded-full items-center mb-10 ${loading || !emailAddress || !password ? "bg-gray-300" : "bg-primary"}`} onPress={onSignInPress} disabled={loading || !emailAddress || !password}>
+                    <Pressable className={`w-full py-4 rounded-full items-center mb-10 ${loading ? "bg-gray-300" : "bg-primary"}`} onPress={onSignInPress} disabled={loading}>
                         {loading ? <ActivityIndicator color="#fff" /> : <Text className="text-white font-bold text-lg">Sign In</Text>}
                     </Pressable>
 

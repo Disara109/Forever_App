@@ -1,22 +1,33 @@
-import { View, Text, ScrollView, TouchableOpacity, Image } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, Image, ActivityIndicator } from 'react-native'
 import React from 'react'
-import { dummyUser } from '@/assets/assets'
 import { useRouter } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Header from '@/components/header'
 import { Ionicons } from '@expo/vector-icons'
 import { COLORS, PROFILE_MENU } from '@/constants'
-import { useClerk } from '@clerk/clerk-expo'
+import { useClerk, useUser } from '@clerk/expo'
 
 export default function Profile() {
 
-  const { user, signOut } = useClerk()
+  const { isLoaded, user } = useUser()
+  const { signOut } = useClerk()
 
   const router = useRouter()
 
   const handleLogout = async () => {
     await signOut();
     router.replace("/(auth)/sign-in")
+  }
+
+  if (!isLoaded) {
+    return (
+      <SafeAreaView className='flex-1 bg-surface' edges={['top']}>
+        <Header title='Profile' />
+        <View className='flex-1 items-center justify-center'>
+          <ActivityIndicator size="large" color={COLORS.primary} />
+        </View>
+      </SafeAreaView>
+    )
   }
 
   return (
