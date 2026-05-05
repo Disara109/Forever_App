@@ -4,22 +4,22 @@ import upload from "../middleware/upload.js"
 import {authorize, protect } from "../middleware/auth.js"
 
 
- const ProductRouter = express.Router()
+const ProductRouter = express.Router()
 
  //get all products
- ProductRouter.get('/', getProducts)
-
-
+ProductRouter.get('/', getProducts)
 
  //get single Product
- ProductRouter.get('/:id', getProduct)
+ProductRouter.get('/:id', getProduct)
 
  //create
- ProductRouter.post('/', upload.array("images", 5), protect, authorize('admin'), createProduct)
+ProductRouter.post('/', upload.array("images", 5), protect, authorize('admin'), createProduct)
 
  //update
- ProductRouter.put('/:id', upload.array("images", 5), protect, authorize('admin'), updateProduct)
+ProductRouter.put('/:id', upload.array("images", 5), protect, authorize('admin'), updateProduct)
 
  //delete
- ProductRouter.delete('/', upload.array("images", 5), protect, authorize('admin'), deleteProduct)
+ProductRouter.delete('/', upload.array("images", 5), protect, authorize('admin'), deleteProduct)
+
+export default ProductRouter;
  
